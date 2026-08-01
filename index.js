@@ -65,25 +65,42 @@ function frontendDependencies(workDir) {
     for (var pkgName in packages) {
 
         var pkg = packages[pkgName];
+        var modulePath = getAndValidateModulePath(workDir, pkgName);
 
-        // process further options
-        var namespaced = pkg.namespaced || false;
+        if (pkg.files && Array.isArray(pkg.files)) {
+            for (var i = 0; i < pkg.files.length; i++) {
+                var fileConfig = pkg.files[i];
+                var sourceFilesPath = path.join(modulePath, fileConfig.src || "/*");
+                
+                var tarPath = fileConfig.target;
+                var targetPath;
+                if (tarPath) {
+                    targetPath = path.join(workDir, tarPath);
+                } else {
+                    targetPath = getAndValidateTargetPath(pkg, packageJson, workDir, pkgName);
+                }
+                
+                // namespaced will be ignored and the files will be downloaded on the given target path
+                copyFiles(sourceFilesPath, targetPath, pkgName, false);
+            }
+        } else {
+            // process further options
+            var namespaced = pkg.namespaced || false;
 
-        // all files of package are copied (src not defined)
-        // => prevent namespace errors by creating a subfolder
-        if (!pkg.hasOwnProperty('namespaced') && !pkg.hasOwnProperty('src')){
-          namespaced = true
+            // all files of package are copied (src not defined)
+            // => prevent namespace errors by creating a subfolder
+            if (!pkg.hasOwnProperty('namespaced') && !pkg.hasOwnProperty('src')){
+              namespaced = true
+            }
+
+            // prepare folder pathes
+            var sourceFilesPath = path.join(modulePath, pkg.src || "/*");
+            //  eg.: /opt/myProject/node_modules/jquery/dist/*
+            //  eg.: /opt/myProject/node_modules/jquery/dist/{file1,file2}
+            var targetPath = getAndValidateTargetPath(pkg, packageJson, workDir, pkgName);
+
+            copyFiles(sourceFilesPath, targetPath, pkgName, namespaced);
         }
-
-        // prepare folder pathes
-        var modulePath = getAndValidateModulePath(workDir, pkgName)
-        var sourceFilesPath = path.join(modulePath, pkg.src || "/*");
-        //  eg.: /opt/myProject/node_modules/jquery/dist/*
-        //  eg.: /opt/myProject/node_modules/jquery/dist/{file1,file2}
-        var targetPath = getAndValidateTargetPath(pkg, packageJson, workDir, pkgName);
-
-
-        copyFiles(sourceFilesPath, targetPath, pkgName, namespaced);
     }
 
 

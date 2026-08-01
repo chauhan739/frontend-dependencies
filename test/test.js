@@ -71,3 +71,31 @@ describe("frontend-dependencies testCase 2", function () {
         });
     });
 });
+
+describe("frontend-dependencies testCase 3", function () {
+    describe("when there are node modules", function () {
+        this.timeout(15000);
+        before(function (done) {
+            shell.cd("test3");
+            shell.rm("-rf", ["node_modules", "static/build/*"]); // cleanup
+            frontendDependencies();
+            done();
+        });
+
+        it("should have copied bootstrap css to static/build/bootstrap/css", function () {
+            assert.ok(shell.test("-d", "static/build/bootstrap/css"));
+            assert.ok(shell.test("-f", "static/build/bootstrap/css/bootstrap.css"));
+            assert.ok(shell.test("-f", "static/build/bootstrap/css/bootstrap.min.css"));
+        });
+
+        it("should have copied bootstrap js to static/build/bootstrap/js", function () {
+            assert.ok(shell.test("-d", "static/build/bootstrap/js"));
+            assert.ok(shell.test("-f", "static/build/bootstrap/js/bootstrap.js"));
+            assert.ok(shell.test("-f", "static/build/bootstrap/js/bootstrap.min.js"));
+        });
+
+        after(function () {
+            shell.cd("..");
+        });
+    });
+});
