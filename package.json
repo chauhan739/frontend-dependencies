@@ -1,13 +1,13 @@
 {
   "name": "frontend-dependencies",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Copies node packages to a directory where your frontend tools will be able to find them",
   "main": "index.js",
   "scripts": {
     "test": "mocha ./test/test.js"
   },
   "bin": {
-    "frontend-dependencies": "./index.js"
+    "frontend-dependencies": "index.js"
   },
   "repository": {
     "type": "git",
@@ -44,9 +44,9 @@
   },
   "homepage": "https://github.com/msurdi/frontend-dependencies#readme",
   "devDependencies": {
-    "mocha": "^11.0.1"
+    "mocha": "^11.1.0"
   },
   "dependencies": {
-    "shelljs": "^0.8.4"
+    "shelljs": "^0.9.2"
   }
 }
