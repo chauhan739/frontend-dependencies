@@ -1,14 +1,21 @@
 ![Node.js CI](https://github.com/msurdi/frontend-dependencies/workflows/Node.js%20CI/badge.svg)
 
-
 # frontend-dependencies
 
 Easily manage your frontend dependencies in `package.json`:
 Install node modules and copy desired files to each directory.
 You can use all frontendDependencies also in the backend (isomorph JavaScript).
 
-NOTE: There is a breaking change from Version `0.4.0` to `1.0.0`. Be sure to update your projects to the new syntax!
+## Key Features
 
+* **Centralized Management**: Manage all your frontend dependencies directly within your `package.json`.
+* **Selective Extraction**: Specify exactly which files or folders to copy from a package (e.g., only minified JS and CSS files).
+* **Multiple Targets**: Use the `files` array option to distribute different files of a single package to different target directories (e.g., JS to one folder, CSS to another).
+* **Automatic Namespacing**: Prevents file naming conflicts across packages by optionally creating parent directories for copied files.
+* **Flexible Sourcing**: Pull dependencies from npm versions, tags, Git URLs, SSH, tarballs, or local folders.
+* **Production Focus**: Intelligently skips devDependencies during installation to reduce overhead and download times.
+
+NOTE: There is a breaking change from Version `0.4.0` to `1.0.0`. Be sure to update your projects to the new syntax!
 
 ## Example
 
@@ -48,7 +55,6 @@ Your target folder in your project will look like:
    |    |_ jquery.min.js
    |    |_ normalize.css
    |
-
 ```
 
 ## Full example
@@ -72,15 +78,30 @@ Your target folder in your project will look like:
 
       "jquery": {               // with options
           "version": "3.1.0",   // for `npm install`: version, tag or version range
-          "src": "dist/*"       // relative path in package to copy files
+          "src": "dist/*",      // relative path in package to copy files
           "namespaced": true    // extra parent folder with package Name
       },
 
       "turbolinks": {
-          // alternative to 'version`: specifie git url, tarball url, tarball file, folder
+          // alternative to 'version`: specify git url, tarball url, tarball file, folder
           "url": "git://github.com/turbolinks/turbolinks.git",     
           "src": "{src,LICENSE}", // copy multiple files
           "target": "static/turbo" // specific target path
+      },
+
+      "bootstrap": {
+          "version": "5.3.3",
+          // Use 'files' array to copy multiple sources to multiple targets (ignores namespacing)
+          "files": [
+            {
+              "src": "dist/css/*",
+              "target": "static/css/bootstrap"
+            },
+            {
+              "src": "dist/js/*",
+              "target": "static/js/bootstrap"
+            }
+          ]
       }
     }
   }
@@ -93,6 +114,18 @@ Your target folder in your project will look like:
  project
    |
    |_ static
+   |   |
+   |   |_ css
+   |   |    |_ bootstrap
+   |   |         |_ bootstrap.css
+   |   |         |_ bootstrap.min.css
+   |   |         |_ ...
+   |   |
+   |   |_ js
+   |   |    |_ bootstrap
+   |   |         |_ bootstrap.js
+   |   |         |_ bootstrap.min.js
+   |   |         |_ ...
    |   |
    |   |_ jquery
    |   |    |_ core.js
@@ -112,9 +145,8 @@ Your target folder in your project will look like:
    |        |
    |        |_ LICENSE
    |
-   |
-
 ```
+
 
 
 ## Installation
@@ -131,7 +163,7 @@ Make it a postinstall script by adding this to your package.json:
 If postinstall did not run you can use this after installed:
 > npm run postinstall
 
-Run can also run it with
+You can also run it with:
 > ./node_modules/.bin/frontend-dependencies
 
 Windows user run it in PowerShell or use this command in Command Prompt:
@@ -147,6 +179,7 @@ The npm package name is taken from the specified name in "frontendDependencies.p
     "version": "beta"    // tag
     "version": "^0.2.4"  // version range
 ```
+
 #### url
 Alternative sources for your packages.
 ```js
@@ -166,7 +199,7 @@ The source file(s) or folder(s) within each npm package to be copied.
    // option 2: copy one file or folder
    "src": "dist/*"
 
-   // option 3: copy serveral files or folders
+   // option 3: copy several files or folders
    "src": "{index.js,index.css}"
 ```
 
@@ -178,6 +211,21 @@ The source file(s) or folder(s) within each npm package to be copied.
    "target": "dest"
 ```
 
+#### files (Multiple Sources & Targets)
+If you need to distribute different files from the same package into entirely different directories, you can pass an array of `files` config objects containing `src` and `target`. When the `files` array is used, any `namespaced` option on the package is ignored for those entries.
+
+```js
+   "files": [
+      {
+         "src": "dist/css/*",
+         "target": "public/css/vendor"
+      },
+      {
+         "src": "dist/js/*",
+         "target": "public/js/vendor"
+      }
+   ]
+```
 
 #### namespaced copy
 Often you will copy just a single file from a package and copy it in your static files folder. Doing this for 4 files, you won't experience namespace errors. If you copy more files or the whole folder (= no `src` option defined), then you want to create a parent folder with the actual module name. Enable this with the `namespaced` option; the default is false.
@@ -196,7 +244,6 @@ If neither `src` nor `namespaced` options are specified as in the example below,
    "version": "4.2.0"
 }
 // => conflicts prevented, by parent folders with module name
-
 ```
 
 ## Tests

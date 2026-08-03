@@ -1,0 +1,29 @@
+{
+  "name": "frontend-dependencies-test3",
+  "version": "1.0.0",
+  "description": "frontend-dependencies test project for multiple files to multiple targets",
+  "main": "index.js",
+  "author": "Matias Surdi <matias@surdi.net>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "bootstrap": "5.3.3"
+  },
+  "frontendDependencies": {
+    "target": "static/build",
+    "packages": {
+      "bootstrap": {
+        "version": "5.3.3",
+        "files": [
+          {
+            "src": "dist/css/*",
+            "target": "static/build/bootstrap/css"
+          },
+          {
+            "src": "dist/js/*",
+            "target": "static/build/bootstrap/js"
+          }
+        ]
+      }
+    }
+  }
+}
