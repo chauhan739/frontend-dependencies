@@ -7,7 +7,7 @@
     "test": "mocha ./test/test.js"
   },
   "bin": {
-    "frontend-dependencies": "./index.js"
+    "frontend-dependencies": "index.js"
   },
   "repository": {
     "type": "git",
