@@ -2,8 +2,8 @@
 
 "use strict";
 var shell = require("shelljs");
-var path = require("path");
-var fs = require("fs");
+var path = require("node:path");
+var fs = require("node:fs");
 var modulePathPrefix = 'node_modules/frontend-dependencies/tmp';
 
 
@@ -25,8 +25,8 @@ function frontendDependencies(workDir) {
 
      // install all packages via npm
     var npmPackageList = "";
-    for (var pkgName in packages) {
-        var pkg = packages[pkgName];
+    for (let pkgName in packages) {
+        let pkg = packages[pkgName];
         npmPackageList += getNpmPackageString(pkg, pkgName);
     }
 
@@ -56,24 +56,20 @@ function frontendDependencies(workDir) {
     var frontendSrcPath = path.join(workDir, modulePathPrefix, "node_modules/*");
     var nodeModulePath = path.join(workDir, "node_modules/");
     log("copy " + frontendSrcPath + " to " + nodeModulePath);
-    shell.cp("-r", frontendSrcPath, nodeModulePath);
-
-
-
+    shell.cp("-r", toGlobPath(frontendSrcPath), nodeModulePath);
 
     log("copy all specified files");
-    for (var pkgName in packages) {
+    for (let pkgName in packages) {
 
         var pkg = packages[pkgName];
         var modulePath = getAndValidateModulePath(workDir, pkgName);
 
         if (pkg.files && Array.isArray(pkg.files)) {
-            for (var i = 0; i < pkg.files.length; i++) {
-                var fileConfig = pkg.files[i];
-                var sourceFilesPath = path.join(modulePath, fileConfig.src || "/*");
-                
+            for (const fileConfig of pkg.files) {
+                let sourceFilesPath = toGlobPath(path.join(modulePath, fileConfig.src || "/*"));
+
                 var tarPath = fileConfig.target;
-                var targetPath;
+                let targetPath;
                 if (tarPath) {
                     targetPath = path.join(workDir, tarPath);
                 } else {
@@ -94,10 +90,10 @@ function frontendDependencies(workDir) {
             }
 
             // prepare folder pathes
-            var sourceFilesPath = path.join(modulePath, pkg.src || "/*");
+            let sourceFilesPath = toGlobPath(path.join(modulePath, pkg.src || "/*"));
             //  eg.: /opt/myProject/node_modules/jquery/dist/*
             //  eg.: /opt/myProject/node_modules/jquery/dist/{file1,file2}
-            var targetPath = getAndValidateTargetPath(pkg, packageJson, workDir, pkgName);
+            let targetPath = getAndValidateTargetPath(pkg, packageJson, workDir, pkgName);
 
             copyFiles(sourceFilesPath, targetPath, pkgName, namespaced);
         }
@@ -108,6 +104,8 @@ function frontendDependencies(workDir) {
 
 
 // helper functions
+
+function toGlobPath(p) { return p.replaceAll('\\', '/'); }
 
 function getAndValidatePackageJson(workDir){
     var pkgJson = require(path.join(workDir, "package.json"));
